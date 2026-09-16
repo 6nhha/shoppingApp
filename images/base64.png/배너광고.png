@@ -1,0 +1,49 @@
+from PIL import Image
+import base64
+import io
+
+INPUT = "배너광고-1024.jpg"
+OUTPUT_IMAGE = "compressed.jpg"
+OUTPUT_BASE64 = "compressed_base64.txt"
+
+# Base64 문자열 최대 크기
+MAX_BASE64_SIZE = 1_990_000
+
+img = Image.open(INPUT).convert("RGB")
+
+# 90부터 10까지 품질을 테스트
+for quality in range(90, 9, -1):
+    buffer = io.BytesIO()
+
+    img.save(
+        buffer,
+        format="JPEG",
+        quality=quality,
+        optimize=True
+    )
+
+    image_data = buffer.getvalue()
+    b64 = base64.b64encode(image_data).decode("ascii")
+
+    if len(b64) <= MAX_BASE64_SIZE:
+        # 압축된 JPEG 저장
+        with open(OUTPUT_IMAGE, "wb") as f:
+            f.write(image_data)
+
+        # Base64 문자열 저장
+        with open(OUTPUT_BASE64, "w", encoding="ascii") as f:
+            f.write(b64)
+
+        print("================================")
+        print("압축 완료!")
+        print("JPEG 품질:", quality)
+        print("이미지 크기:", len(image_data), "bytes")
+        print("Base64 크기:", len(b64), "characters")
+        print("Base64 크기:", len(b64) / 1024 / 1024, "MB")
+        print("이미지:", OUTPUT_IMAGE)
+        print("Base64:", OUTPUT_BASE64)
+        print("================================")
+
+        break
+else:
+    print("품질을 10까지 낮춰도 2MB 이하가 되지 않았습니다.")
