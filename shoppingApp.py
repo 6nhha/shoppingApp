@@ -1,0 +1,128 @@
+#shoppingApp
+import os.path
+import tempfile
+
+import webview
+import sys
+from pathlib import Path
+import os
+#print("시스템경로:",sys.path[0]+"\\images\\")
+#print("경로인식",os.path.exists(os.path.exists(sys.path[0]+"\\images\\y1.png")))
+#imgpath=print(Path(sys.path[0]+"/images/").resolve().as_uri())
+inHtml="""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{margin:0;padding:0;}
+        body{overflow-y: hidden;}
+        #mtop{height:20vh}
+        #mmenu{height:10vh}
+        #mfooter{height:10vh;clear:both}
+        #mcenter{height:60vh;width:70vw;float:left}
+        #mside{width:30vw;height:60vh;float:left}
+        .product{width: 23vw;height: 40vh;float:left}
+        /* @media(orientation:landscape){
+            button{display: none}
+        }
+        @media(orientation:portrait){
+            button{display: none}
+        } */
+        ul li{font-size:1.2rem; float: left;padding: 1.5vm;width: 17vw;text-align: center;cursor: pointer;}
+         ul li:hover{color: red;}
+    </style>
+</head>
+<body>
+    <!-- <button>가로화면(landscape)</button> -->
+    <div id="mtop" style="background-size: cover;
+    background-image:url('./images/maintitle1.png')">
+    <div style="float:right;margin-top:5vh">
+        <div style="float:right;width:5rem;height:3rem"><button style="height:2.3rem">로그인</button></div>
+        <div style="float:right;width:11rem;height:3rem">
+            <p><input type="text" placeholder="아이디" /></p>
+            <p><input type="password" placeholder="비밀번호" /></p>
+        </div>
+        
+    </div>
+    </div>
+    <div id="mmenu" style="background-color:azure">
+        <ul style="list-style: none;padding-top: 3vh;">
+            <li class="evt" id="dan">단 목</li>
+            <li class="evt" id="foot">발 목</li>
+            <li class="evt" id="jan">장 목</li>
+            <li class="evt" id="cover">덧 신</li>
+            <li class="evt" id="maker">메이커</li>
+        </ul>        
+    </div>
+    </div>
+    <div id="mcenter" style="background-color:black">가운데</div>
+    <div id="mside" style="background-color:black">
+        <img src="images/배너광고.png" style="width:100%;height:100%"/>
+    </div>
+    <div id="mfooter" style="background-color:burlywood">
+        <address> 📌 전남광주통합광역시 광산구 사암로 </address>
+        <a href="tel:0624131600"> ☎ 062-413-1600</a>
+    </div>
+</body>
+<script>
+    const mcenter=document.getElementById("mcenter")
+    const datas={
+        dan:[["y7","흰색단목양말",2000],["y8","회색단목양말",2000],["y9","검은색단목양말",2000]],
+        jan:[["y1","회색장목양말",3000],["y2","아이보리색장목양말",3000],["y3","남색장목양말",3000]],
+        maker:[["y10","나이키양말",10000],["y11","하얀색아디다스양말",10000],["y12","남색아디다스양말",10000]],
+        foot:[["y13","핑크색발목양말",5000],["y14","노란색발목양말",5000],["y15","하늘색발목양말",5000]],
+        cover:[["y4","회색덧신",5000],["y5","아이보리색덧신",5000],["y6","남색덧신",5000]]
+    }
+
+    //mcenter.innerHTML=inHtml
+    const evt_moniters=document.getElementsByClassName("evt")
+    console.log(evt_moniters.length)
+    for(let i=0;i<evt_moniters.length;i++){
+        const key=evt_moniters[i].id
+        evt_moniters[i].addEventListener("click",function(e){
+            mcenter.innerHTML=createData(datas[e.target.id])    
+        })
+        if(i==0){
+            evt_moniters[i].click()//이벤트 트리거
+        }
+    }
+
+    function createData(data){
+        console.log(data)
+        let inHtml = ''
+        //height:60vh;width:70vw;
+        for(let i=0;i<data.length;i++){
+            console.log(data[i][0])//그림이름
+            console.log(data[i][1])//상품이름
+            console.log(data[i][2])//가격
+            inHtml += `<div class="product" style="margin-left:0.2vw">
+                <img style="width:100%;height:50vh" src="images/${data[i][0]}.png"/>
+                <p style="background:orange;color:white;font-size:1.5rem;text-align:center">${data[i][1]}</p>
+                <p onclick="buy(this)" info="${data[i][0]},${data[i][2]}" style="background:orange;color:white;font-size:1.5rem;text-align:center;cursor:pointer">구매 ${data[i][2]} 원</p>
+                </div>`
+        }
+        return inHtml;
+    }
+    function buy(element){
+        const [code,price]=element.getAttribute("info").split(",")
+        const yn=confirm(`구매정보 상품코드 ${code} 상품가격 ${price}원입니다.`)
+        if(yn){
+            alert("구매페이지로 이동합니다.")
+        }else{
+            alert("구매를 취소하였습니다.")
+        }
+    }
+</script>
+</html>
+"""
+base_dir = os.path.dirname(os.path.abspath(__file__))
+html_path = os.path.join(base_dir,"index.html")
+with open(html_path,"w",encoding="utf-8") as fp:
+    fp.write(inHtml)
+webview.create_window("양말 모음 쇼핑몰",url=html_path,
+                      width=800,height=600)
+
+webview.start()
